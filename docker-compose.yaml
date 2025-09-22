@@ -1,0 +1,15 @@
+# VirtualThread, Reactive, ThreadPool
+services:
+  http-server:
+    build: .
+    ports:
+      - "4221:4221"
+    volumes:
+      - ./recordings:/app/recordings
+      - ./logs:/app/logs
+    init: true
+    command: ["ThreadPool", "4221"]
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
