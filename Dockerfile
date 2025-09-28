@@ -26,4 +26,4 @@ RUN mkdir -p /app/logs
 EXPOSE 4221
 
 # Start server with JFR enabled
-ENTRYPOINT ["java","-XX:StartFlightRecording=filename=/app/recordings/server.jfr,settings=profile,dumponexit=true,delay=1s","-jar","http-server.jar"]
+ENTRYPOINT ["java","-XX:StartFlightRecording=filename=/app/recordings/server.jfr,settings=profile,dumponexit=true,delay=20s","-jar","http-server.jar"]

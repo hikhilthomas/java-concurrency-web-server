@@ -24,8 +24,9 @@ public class ReactiveHTTPHandler implements HTTPHandler<HttpServerRequest> {
             case "/" -> {
                 LOGGER.info("Simple HTTP request received.");
                 request.response()
+                        .putHeader("Content-Type", "application/json")
                         .setStatusCode(200)
-                        .end("OK");
+                        .end(HTTPConstants.JSON_RESPONSE);
             }
             case "/io" -> {
                 var timeout = vertx.setTimer(3000, tid -> {
@@ -37,8 +38,9 @@ public class ReactiveHTTPHandler implements HTTPHandler<HttpServerRequest> {
                     vertx.cancelTimer(timeout);
                     LOGGER.info("IO task successfully completed.");
                     request.response()
+                            .putHeader("Content-Type", "application/json")
                             .setStatusCode(200)
-                            .end("OK");
+                            .end(HTTPConstants.JSON_RESPONSE);
                 });
             }
             case "/compute" -> {
@@ -49,7 +51,10 @@ public class ReactiveHTTPHandler implements HTTPHandler<HttpServerRequest> {
                 }).timeout(3, TimeUnit.SECONDS)
                         .onComplete(result -> {
                             if (result.succeeded()) {
-                                request.response().setStatusCode(200).end(result.result());
+                                request.response()
+                                        .putHeader("Content-Type", "application/json")
+                                        .setStatusCode(200)
+                                        .end(HTTPConstants.JSON_RESPONSE);
                             } else {
                                 request.response().setStatusCode(500).end("Internal Server Error");
                             }

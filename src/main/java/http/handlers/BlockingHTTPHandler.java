@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -22,8 +23,9 @@ public class BlockingHTTPHandler implements HTTPHandler<Socket> {
         try (clientSocket;
              final BufferedReader requestReader = new BufferedReader(
                 new InputStreamReader(clientSocket.getInputStream()));
+             final OutputStream out = clientSocket.getOutputStream();
              final BufferedWriter responseWriter = new BufferedWriter(
-                     new OutputStreamWriter(clientSocket.getOutputStream()))
+                     new OutputStreamWriter(out))
         ) {
             clientSocket.setSoTimeout(3000);
             final HTTPRequest request = HTTPRequest
@@ -49,6 +51,13 @@ public class BlockingHTTPHandler implements HTTPHandler<Socket> {
                 }
             }
             responseWriter.write(response);
+            responseWriter.write("Content-Type: application/json\r\n");
+            responseWriter.write("Content-Length: " + HTTPConstants.RESPONSE_BYTES.length + "\r\n");
+            responseWriter.write("\r\n");
+            responseWriter.flush();
+
+            out.write(HTTPConstants.RESPONSE_BYTES);
+            out.flush();
         } catch (SocketTimeoutException e) {
             LOGGER.error("Request timed out from client {}", clientSocket.getRemoteSocketAddress());
             try (BufferedWriter writer = new BufferedWriter(
